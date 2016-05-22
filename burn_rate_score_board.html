@@ -1,0 +1,127 @@
+<html>
+  <head>
+    <title>Brun Rate Score Board</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vue/1.0.24/vue.min.js"></script>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+    
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" >
+    
+    <style type="text/css">
+      ul#gamers {
+        margin-top: 20px;
+      }
+
+      ul#gamers > li {
+        float: left;
+        margin-top: 15px;
+        margin-right: 15px;
+        border: solid 1px #ddd;
+        list-style-type: none;
+        padding: 10px 20px;
+      }
+
+      ul#gamers > li .functions {
+        margin-top: 10px;
+      }
+
+      ul#gamers > li.game-over {
+        background-color: #ddd;
+      }
+        
+      ul#gamers > li .history {
+        margin-top: 5px;
+      }
+
+      ul#gamers > li .gamer-name .label.label-danger {
+        margin-left: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-lg-12">
+          <h1>Brun Rate Score Board</h1>
+          <div id="app">
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="form-inline">
+                  <div class="form-group">
+                    <label>Gamer</label>
+                    <input type='text' id='txtGamer' class="form-control" v-model="gamerName" v-on:keyup.enter="addGamer" /> 
+                  </div>
+                  <button class="btn btn-primary" v-on:click="addGamer">Join Gamer</button>
+                </form>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-lg-12">
+                <ul id="gamers">
+                  <li v-for="gamer in gamers" v-bind:class="{ 'game-over': gamer.balance <= 0}">
+                    <h4 class="gamer-name">{{ gamer.name }}<span class="label label-danger" v-if="gamer.balance <= 0">Game Over</span></h4> 
+                    <span class="label label-info">{{ gamer.balance | currency }}</span>
+                    <div class="functions">
+                      <button class="btn btn-success" v-on:click="addOrReduceAmount($index, 1)"><i class="fa fa-plus"></i></button>
+                      <button class="btn btn-warning" v-on:click="addOrReduceAmount($index, -1)"><i class="fa fa-minus"></i></button>
+                      <button class="btn btn-danger" v-on:click="removeGamer($index)"><i class="fa fa-times"></i></button>
+                    </div>
+                    <ol class="history">
+                      <li v-for="log in gamer.logs">
+                        {{ log.balance | currency }}
+                      </li>
+                    </ol>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+<script type='text/javascript'>
+  $(document).ready(function () {
+    var initial_balance = 100;
+    var app = new Vue({
+      el: '#app',
+      data: {
+        gamers: [          
+        ]
+      },
+      methods: {
+        addGamer: function () {
+          var gamer_name = this.gamerName.trim();
+          if(gamer_name) {
+            this.gamers.push({ name: gamer_name, balance: initial_balance, logs:[{balance: initial_balance}] });
+            this.gamerName = "";
+          }
+        },
+        removeGamer: function (index) {
+          if(confirm('確認移除?')) {
+            this.gamers.splice(index, 1)
+          }
+        },
+        addOrReduceAmount: function(index, baseAmount) {
+          var input_amount = Number(prompt('請輸入金額'));           
+          if(!isNaN(input_amount) && input_amount) {
+            this.gamers[index].balance += input_amount*baseAmount;
+            this.addLog(this.gamers[index]);            
+          }         
+        },
+        addLog: function(gamer) {
+          gamer.logs.push({ balance: gamer.balance });            
+        }
+      }
+    });
+  });
+</script>
